@@ -1,6 +1,6 @@
 {
   "name": "todolist",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
@@ -10,7 +10,10 @@
     "typescript": "^5"
   },
   "scripts": {
-    "dev": "bun run --watch ./index.ts",
-    "start": "bun run ./index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1"
   }
 }
