@@ -4,16 +4,21 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "^1.2.4"
+    "@types/bun": "^1.2.4",
+    "prisma": "^6.4.1"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts"
+    "start": "bun run src/index.ts",
+    "prisma:build": "npx prisma generate --schema ./src/prisma/schema",
+    "prisma:migrate": "npm run prisma:build && npx prisma migrate dev --name init --schema src/prisma/schema"
   },
   "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "@prisma/extension-accelerate": "^1.2.2",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1"
   }

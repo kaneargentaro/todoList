@@ -1,10 +1,11 @@
-import {withValidation} from "../../middlewares/validate.ts";
+import {withValidation} from "../middlewares/validate.ts";
 import type {JTDDataType} from "ajv/dist/types/jtd-schema";
+import prisma from "../utils/prisma";
 
 // Define the schema for login payloads.
 const loginSchema = {
     properties: {
-        username: {type: "string", format: "email"},
+        email: {type: "string", format: "email"},
         password: {type: "string"}
     }
 } as const;
@@ -26,11 +27,39 @@ async function getLogin(req: Request): Promise<Response> {
 const postLogin = withValidation<LoginPayload>(
     loginSchema,
     async (payload, req) => {
-        // Your business logic here. For instance, authenticate the user.
-        // In this example, we simply return a success message.
+
+        const {email, password} = payload;
+
+        const user = await prisma.user.findUnique({
+            where: {
+                email: email,
+                password: password
+            }
+        });
+
+        if (!user) {
+            return new Response(JSON.stringify({
+                    message: "Unauthorized",
+                }), {
+                    status: 401,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            )
+        }
+
+        // TODO: create JWT
+
         return new Response(
-            JSON.stringify({message: "Login successful", username: payload.username}),
-            {headers: {"Content-Type": "application/json"}}
+            JSON.stringify({
+                message: "Login successful",
+            }),
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
         );
     }
 );
