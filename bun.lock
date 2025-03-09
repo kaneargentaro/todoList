@@ -4,7 +4,7 @@
     "": {
       "name": "todolist",
       "devDependencies": {
-        "@types/bun": "latest",
+        "@types/bun": "^1.2.4",
       },
       "peerDependencies": {
         "typescript": "^5",
