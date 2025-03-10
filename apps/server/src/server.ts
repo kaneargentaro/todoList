@@ -5,6 +5,26 @@ import type Route from "./types/route";
 
 const port = process.env.PORT || 3000;
 
+// Define the CORS headers you want to attach to every response.
+const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+// Helper to attach CORS headers to an existing response.
+function attachCors(response: Response): Response {
+    const newHeaders = new Headers(response.headers);
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+        newHeaders.set(key, value);
+    });
+    return new Response(response.body, {
+        status: response.status,
+        headers: newHeaders,
+    });
+}
+
+
 // Dynamically import all routes from the routes directory
 async function loadRoutes(): Promise<Route[]> {
     const routesDir = path.join(process.cwd(), "src", "routes");
@@ -24,8 +44,12 @@ async function loadRoutes(): Promise<Route[]> {
 export async function startServer() {
     const routes = await loadRoutes();
 
-    // Router function that iterates through the loaded routes to find a match
     async function router(req: Request): Promise<Response> {
+        // Handle CORS preflight
+        if (req.method === "OPTIONS") {
+            return new Response(null, {headers: corsHeaders});
+        }
+
         try {
             const url = new URL(req.url);
             const matchedRoute = routes.find(
@@ -33,18 +57,19 @@ export async function startServer() {
             );
 
             if (matchedRoute) {
-                return await matchedRoute.handler(req);
+                const response = await matchedRoute.handler(req);
+                return attachCors(response);
             }
 
             return new Response(JSON.stringify({error: "Not Found"}), {
                 status: 404,
-                headers: {"Content-Type": "application/json"},
+                headers: {"Content-Type": "application/json", ...corsHeaders},
             });
         } catch (error: any) {
             console.error("Error processing request:", error);
             return new Response(JSON.stringify({error: error.message}), {
                 status: 500,
-                headers: {"Content-Type": "application/json"},
+                headers: {"Content-Type": "application/json", ...corsHeaders},
             });
         }
     }
