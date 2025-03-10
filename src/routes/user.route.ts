@@ -1,27 +1,14 @@
+// src/routes/user.routes.ts
 import type Route from '../types/route';
+import {compose} from '../middlewares/compose';
+import {authMiddleware} from "../middlewares/authentication.ts";
+import {getUser} from '../controllers/user.controller';
 
 const userRoutes: Route[] = [
     {
         method: "GET",
         path: "/user",
-        handler: (req: Request): Response => {
-            return new Response(
-                JSON.stringify({message: "Hello from User"}),
-                {headers: {"Content-Type": "application/json"}}
-            );
-        },
-    },
-    {
-        method: "POST",
-        path: "/user",
-
-        handler: async (req: Request): Promise<Response> => {
-            const body = await req.json();
-            return new Response(
-                JSON.stringify({message: "Posted to User", body}),
-                {headers: {"Content-Type": "application/json"}}
-            );
-        },
+        handler: compose([authMiddleware], getUser),
     },
 ];
 

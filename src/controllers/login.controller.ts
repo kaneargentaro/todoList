@@ -1,67 +1,55 @@
-import {withValidation} from "../middlewares/validate.ts";
-import type {JTDDataType} from "ajv/dist/types/jtd-schema";
 import prisma from "../utils/prisma";
+import jwt from "jsonwebtoken";
+import {JWT_SECRET} from "../constants/auth.ts";
+import type {Context} from "../types/context";
+import type {JTDDataType} from "ajv/dist/types/jtd-schema";
 
-// Define the schema for login payloads.
+// Schema used for typing; the actual JSONSchema will be defined in the route.
 const loginSchema = {
     properties: {
         email: {type: "string", format: "email"},
-        password: {type: "string"}
-    }
+        password: {type: "string"},
+    },
 } as const;
+export type LoginPayload = JTDDataType<typeof loginSchema>;
 
-// Define the TypeScript type for the validated payload.
-// type LoginPayload = {
-//     username: string;
-//     password: string;
-// };
-
-type LoginPayload = JTDDataType<typeof loginSchema>;
-
-async function getLogin(req: Request): Promise<Response> {
-    // For example purposes, we throw an error to indicate that GET is not supported.
-    throw new Error("LOGIN_0001: GET not supported");
-}
-
-// Wrap your login logic with the validation middleware.
-const postLogin = withValidation<LoginPayload>(
-    loginSchema,
-    async (payload, req) => {
-
-        const {email, password} = payload;
-
-        const user = await prisma.user.findUnique({
-            where: {
-                email: email,
-                password: password
-            }
+export const getLogin = async (ctx: Context): Promise<Response> => {
+    const {email} = ctx.locals.auth || {};
+    if (!email) {
+        return new Response(JSON.stringify({error: "Not authenticated"}), {
+            status: 401,
+            headers: {"Content-Type": "application/json"},
         });
-
-        if (!user) {
-            return new Response(JSON.stringify({
-                    message: "Unauthorized",
-                }), {
-                    status: 401,
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                }
-            )
-        }
-
-        // TODO: create JWT
-
-        return new Response(
-            JSON.stringify({
-                message: "Login successful",
-            }),
-            {
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            }
-        );
     }
-);
+    return new Response(
+        JSON.stringify({message: `${email} is logged in`}),
+        {status: 200, headers: {"Content-Type": "application/json"}}
+    );
+};
 
-export default {getLogin, postLogin};
+export const postLogin = async (ctx: Context): Promise<Response> => {
+    const payload = ctx.locals.validatedBody as LoginPayload;
+    const {email, password} = payload;
+
+    const user = await prisma.user.findUnique({
+        where: {email, password},
+    });
+
+    if (!user) {
+        return new Response(JSON.stringify({message: "Unauthorized"}), {
+            status: 401,
+            headers: {"Content-Type": "application/json"},
+        });
+    }
+
+    const token = jwt.sign(
+        {userId: user.id, email: user.email},
+        JWT_SECRET,
+        {expiresIn: "1h"}
+    );
+
+    return new Response(
+        JSON.stringify({message: "Login successful", token}),
+        {headers: {"Content-Type": "application/json"}}
+    );
+};
