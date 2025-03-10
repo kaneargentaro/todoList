@@ -1,8 +1,8 @@
 // src/routes/user.routes.ts
 import type Route from '../types/route';
-import {compose} from '../middlewares/compose';
+import {compose} from '../middlewares/compose.ts';
 import {authMiddleware} from "../middlewares/authentication.ts";
-import {getUser} from '../controllers/user.controller';
+import {getUser} from '../controllers/user.controller.ts';
 
 const userRoutes: Route[] = [
     {

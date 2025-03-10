@@ -3,7 +3,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import type {JSONSchemaType} from "ajv";
 import type {Context} from "../types/context";
-import type {Middleware} from "./compose";
+import type {Middleware} from "./compose.ts";
 
 export function validationMiddleware<T>(schema: JSONSchemaType<T>): Middleware {
     const ajv = new Ajv({strict: false, allErrors: true});

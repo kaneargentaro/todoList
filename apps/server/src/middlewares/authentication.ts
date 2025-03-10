@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import type {Middleware} from "./compose";
+import type {Middleware} from "./compose.ts";
 import {JWT_SECRET} from "../constants/auth.ts";
 
 // This interface represents the shape of the decoded token payload.

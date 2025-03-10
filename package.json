@@ -1,27 +1,32 @@
 {
   "name": "todolist",
-  "module": "src/index.ts",
-  "type": "module",
+  "version": "1.0.0",
   "private": true,
   "devDependencies": {
-    "@types/bun": "^1.2.4",
-    "@types/jsonwebtoken": "^9.0.9",
-    "prisma": "^6.4.1"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
+    "turbo": "^2.4.4"
   },
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts",
-    "prisma:build": "npx prisma generate --schema ./src/prisma/schema",
-    "prisma:migrate": "npm run prisma:build && npx prisma migrate dev --name init --schema src/prisma/schema"
+    "build": "turbo run build",
+    "build:server": "turbo run build --filter=server",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
   },
-  "dependencies": {
-    "@prisma/client": "^6.4.1",
-    "@prisma/extension-accelerate": "^1.2.2",
-    "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1",
-    "jsonwebtoken": "^9.0.2"
-  }
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaneargentaro/todoList.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kaneargentaro/todoList/issues"
+  },
+  "homepage": "https://github.com/kaneargentaro/todoList#readme",
+  "description": "",
+  "packageManager": "npm@8.5.0"
 }
