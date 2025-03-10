@@ -1,0 +1,29 @@
+{
+  "name": "server",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "@prisma/extension-accelerate": "^1.2.2",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "bun": "^1.2.4",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.4",
+    "@types/jsonwebtoken": "^9.0.9",
+    "prisma": "^6.4.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --external bun",
+    "start": "bun run src/index.ts",
+    "prisma:build": "npx prisma generate --schema ../../packages/db/prisma/schema",
+    "prisma:migrate": "npm run prisma:build && npx prisma migrate dev --name init --schema ../../packages/db/prisma/schema"
+  }
+}
