@@ -1,6 +1,4 @@
-// src/controllers/note.controller.ts
-import prisma from "../utils/prisma.ts";
-import type {JwtPayload} from "../middlewares/authentication.ts";
+import prisma from "@db";
 import type {Note} from "@prisma/client";
 import type {Context} from "../types/context";
 import type {JSONSchemaType} from "ajv";

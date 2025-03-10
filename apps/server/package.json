@@ -22,8 +22,6 @@
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "build": "bun build src/index.ts --outdir dist --external bun",
-    "start": "bun run src/index.ts",
-    "prisma:build": "npx prisma generate --schema ../../packages/db/prisma/schema",
-    "prisma:migrate": "npm run prisma:build && npx prisma migrate dev --name init --schema ../../packages/db/prisma/schema"
+    "start": "bun run src/index.ts"
   }
 }

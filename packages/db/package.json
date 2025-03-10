@@ -1,0 +1,17 @@
+{
+  "name": "@db",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --external bun --external @prisma/client",
+    "prisma:generate": "npx prisma generate --schema ./prisma/schema",
+    "prisma:migrate": "npm run prisma:generate && npx prisma migrate dev --name init --schema ./prisma/schema"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.4.1",
+    "typescript": "^5"
+  }
+}

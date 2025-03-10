@@ -1,4 +1,4 @@
-import prisma from "../utils/prisma.ts";
+import prisma from "@db";
 import jwt from "jsonwebtoken";
 import {JWT_SECRET} from "../constants/auth.ts";
 import type {Context} from "../types/context";
