@@ -1,24 +1,12 @@
-// src/routes/note.routes.ts
-import type Route from "../types/route";
-import {compose} from "../middlewares/compose.ts";
-import {authMiddleware} from "../middlewares/authentication.ts";
-import {validationMiddleware} from "../middlewares/validation.ts";
-import {getNotes, postNote, noteSchema} from "../controllers/note.controller.ts";
+import {Hono} from 'hono';
+import {authMiddleware} from '../middlewares/authentication';
+import {validationMiddleware} from '../middlewares/validation';
+import {getNotes, postNote, noteSchema} from '../controllers/note.controller';
+import type {AppEnv} from "../types/hono-env.ts";
 
-const noteRoutes: Route[] = [
-    {
-        method: "GET",
-        path: "/notes",
-        handler: compose([authMiddleware], getNotes),
-    },
-    {
-        method: "POST",
-        path: "/notes",
-        handler: compose(
-            [authMiddleware, validationMiddleware(noteSchema)],
-            postNote
-        ),
-    },
-];
+const noteRouter = new Hono<AppEnv>();
 
-export default noteRoutes;
+noteRouter.get('/', authMiddleware, ...getNotes);
+noteRouter.post('/', authMiddleware, validationMiddleware(noteSchema), ...postNote);
+
+export default noteRouter;

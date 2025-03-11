@@ -1,27 +1,28 @@
 import prisma from "@db";
-import type {JwtPayload} from "../middlewares/authentication.ts";
-import type {Context} from "../types/context";
+import {createFactory} from "hono/factory";
+import type {Context} from "hono";
+import type {AppEnv} from "../types/hono-env";
+import type {JwtPayload} from "../middlewares/authentication";
 
-export async function getUser(ctx: Context): Promise<Response> {
-    const auth = ctx.locals.auth as JwtPayload | undefined;
-    if (!auth) {
-        return new Response(JSON.stringify({error: "Unauthorized"}), {
-            status: 401,
-            headers: {"Content-Type": "application/json"},
+const factory = createFactory<AppEnv>();
+
+export const getUser = factory.createHandlers(
+    async (c: Context<AppEnv>): Promise<Response> => {
+        // Retrieve authentication information from context.
+        const {userId, email} = c.get("auth") as JwtPayload;
+        if (!userId || !email) {
+            return c.json({error: "Unauthorized"}, 401);
+        }
+
+        // Query the database for the user.
+        const user = await prisma.user.findUnique({
+            where: {id: userId, email},
         });
+
+        if (!user) {
+            return c.json({error: "User not found"}, 404);
+        }
+
+        return c.json(user, 200);
     }
-
-    const {id, email} = auth;
-
-    const user = await prisma.user.findUnique({
-        where: {
-            id,
-            email,
-        },
-    });
-
-    return new Response(JSON.stringify(user), {
-        status: 200,
-        headers: {"Content-Type": "application/json"},
-    });
-}
+);

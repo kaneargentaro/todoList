@@ -1,15 +1,10 @@
-// src/routes/user.routes.ts
-import type Route from '../types/route';
-import {compose} from '../middlewares/compose.ts';
-import {authMiddleware} from "../middlewares/authentication.ts";
-import {getUser} from '../controllers/user.controller.ts';
+import {Hono} from 'hono';
+import {authMiddleware} from '../middlewares/authentication';
+import {getUser} from '../controllers/user.controller';
+import type {AppEnv} from "../types/hono-env.ts";
 
-const userRoutes: Route[] = [
-    {
-        method: "GET",
-        path: "/user",
-        handler: compose([authMiddleware], getUser),
-    },
-];
+const userRouter = new Hono<AppEnv>();
 
-export default userRoutes;
+userRouter.get('/', authMiddleware, ...getUser);
+
+export default userRouter;

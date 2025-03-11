@@ -9,6 +9,7 @@
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "bun": "^1.2.4",
+    "hono": "^4.7.4",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {

@@ -1,9 +1,11 @@
 import prisma from "@db";
+import {createFactory} from "hono/factory";
+import type {Context} from "hono";
+import type {AppEnv} from "../types/hono-env";
 import type {Note} from "@prisma/client";
-import type {Context} from "../types/context";
 import type {JSONSchemaType} from "ajv";
 
-// Define the shape of the note payload.
+// The payload type for creating a note.
 export interface NotePayload {
     message?: string;
 }
@@ -17,32 +19,44 @@ export const noteSchema: JSONSchemaType<NotePayload> = {
     required: [],
 };
 
-export async function getNotes(ctx: Context): Promise<Response> {
-    const {userId, email} = ctx.locals.auth || {};
+const factory = createFactory<AppEnv>();
 
-    const notes: Note[] = await prisma.note.findMany({
-        where: {userId: userId},
-    });
+export const getNotes = factory.createHandlers(
+    async (c: Context<AppEnv>): Promise<Response> => {
+        // Retrieve the authenticated user's ID from context.
+        const {userId} = c.get("auth") || {};
+        if (!userId) {
+            return c.json({error: "Unauthorized"}, 401);
+        }
 
-    return new Response(JSON.stringify(notes), {
-        status: 200,
-        headers: {"Content-Type": "application/json"},
-    });
-}
+        // Retrieve notes for the user.
+        const notes: Note[] = await prisma.note.findMany({
+            where: {userId},
+        });
 
-export async function postNote(ctx: Context): Promise<Response> {
-    const {userId, email} = ctx.locals.auth || {};
+        return c.json(notes, 200);
+    }
+);
 
-    const payload = ctx.locals.validatedBody as NotePayload;
-    const note: Note = await prisma.note.create({
-        data: {
-            userId: userId,
-            message: payload.message || "",
-        },
-    });
+export const postNote = factory.createHandlers(
+    async (c: Context<AppEnv>): Promise<Response> => {
+        // Retrieve the authenticated user's ID.
+        const {userId} = c.get("auth") || {};
+        if (!userId) {
+            return c.json({error: "Unauthorized"}, 401);
+        }
 
-    return new Response(JSON.stringify(note), {
-        status: 201,
-        headers: {"Content-Type": "application/json"},
-    });
-}
+        // Get the validated payload from the validation middleware.
+        const validatedPayload = c.get("validatedBody") as NotePayload;
+
+        // Create a new note.
+        const note = await prisma.note.create({
+            data: {
+                userId,
+                message: validatedPayload.message || "",
+            },
+        });
+        
+        return c.json(note, 201);
+    }
+);

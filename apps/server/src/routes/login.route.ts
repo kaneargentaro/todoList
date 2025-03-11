@@ -1,13 +1,17 @@
-// src/routes/login.routes.ts
-import type Route from "../types/route";
-import * as loginController from "../controllers/login.controller.ts";
-import {compose} from "../middlewares/compose.ts";
-import {authMiddleware} from "../middlewares/authentication.ts";
-import {validationMiddleware} from "../middlewares/validation.ts";
+import {Hono} from "hono";
+import loginController from "../controllers/login.controller";
+import {authMiddleware} from "../middlewares/authentication";
 import type {JSONSchemaType} from "ajv";
-import type {LoginPayload} from "../controllers/login.controller.ts";
+import type {AppEnv} from "../types/hono-env";
+import {validationMiddleware} from "../middlewares/validation.ts";
 
-// Define the JSON schema for the payload using JSON Schema syntax.
+// Define the interface for the login payload
+export interface LoginPayload {
+    email: string;
+    password: string;
+}
+
+// JSON Schema for login payload
 const loginJsonSchema: JSONSchemaType<LoginPayload> = {
     type: "object",
     properties: {
@@ -18,26 +22,13 @@ const loginJsonSchema: JSONSchemaType<LoginPayload> = {
     additionalProperties: false,
 };
 
-// Compose the GET /login route: chain the auth middleware first.
-const getLoginHandler = compose([authMiddleware], loginController.getLogin);
+const router = new Hono<AppEnv>();
 
-// Compose the POST /login route: chain the validation middleware.
-const postLoginHandler = compose(
-    [validationMiddleware(loginJsonSchema)],
-    loginController.postLogin
+router.get("/", authMiddleware, ...loginController.getLogin);
+router.post(
+    "/",
+    validationMiddleware(loginJsonSchema),
+    ...loginController.postLogin
 );
 
-const loginRoutes: Route[] = [
-    {
-        method: "GET",
-        path: "/login",
-        handler: getLoginHandler,
-    },
-    {
-        method: "POST",
-        path: "/login",
-        handler: postLoginHandler,
-    },
-];
-
-export default loginRoutes;
+export default router;

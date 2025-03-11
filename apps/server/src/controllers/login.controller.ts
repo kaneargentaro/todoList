@@ -1,55 +1,54 @@
 import prisma from "@db";
-import jwt from "jsonwebtoken";
-import {JWT_SECRET} from "../constants/auth.ts";
-import type {Context} from "../types/context";
-import type {JTDDataType} from "ajv/dist/types/jtd-schema";
+import {JWT_SECRET} from "../constants/auth";
+import type {Context} from "hono";
+import {HTTPException} from "hono/http-exception";
+import {sign} from "hono/jwt";
+import {createFactory} from "hono/factory";
+import type {AppEnv} from '../types/hono-env.ts';
 
-// Schema used for typing; the actual JSONSchema will be defined in the route.
-const loginSchema = {
-    properties: {
-        email: {type: "string", format: "email"},
-        password: {type: "string"},
-    },
-} as const;
-export type LoginPayload = JTDDataType<typeof loginSchema>;
+// Using Hono's factory for handler creation keeps consistency across controllers.
+const factory = createFactory<AppEnv>();
 
-export const getLogin = async (ctx: Context): Promise<Response> => {
-    const {email} = ctx.locals.auth || {};
-    if (!email) {
-        return new Response(JSON.stringify({error: "Not authenticated"}), {
-            status: 401,
-            headers: {"Content-Type": "application/json"},
-        });
+// Define the LoginPayload type using your JSON schema shape.
+export interface LoginPayload {
+    email: string;
+    password: string;
+}
+
+const getLogin = factory.createHandlers(
+    async (c: Context<AppEnv>) => {
+        // Retrieve the authenticated user's data from the context.
+        const {email} = c.get("auth") || {};
+        if (!email) {
+            throw new HTTPException(401, {message: "Not authenticated"});
+        }
+
+        return c.json({message: `${email} is logged in`});
     }
-    return new Response(
-        JSON.stringify({message: `${email} is logged in`}),
-        {status: 200, headers: {"Content-Type": "application/json"}}
-    );
-};
+);
 
-export const postLogin = async (ctx: Context): Promise<Response> => {
-    const payload = ctx.locals.validatedBody as LoginPayload;
-    const {email, password} = payload;
+const postLogin = factory.createHandlers(
+    async (c: Context<AppEnv>) => {
+        // Parse and validate JSON payload (assuming validation middleware or inline validation)
+        const {email, password} = await c.req.json<LoginPayload>();
 
-    const user = await prisma.user.findUnique({
-        where: {email, password},
-    });
-
-    if (!user) {
-        return new Response(JSON.stringify({message: "Unauthorized"}), {
-            status: 401,
-            headers: {"Content-Type": "application/json"},
+        // Find the user by email and password.
+        const user = await prisma.user.findUnique({
+            where: {email, password},
         });
+
+        if (!user) {
+            throw new HTTPException(401, {message: "Unauthorized"});
+        }
+
+        // Sign a JWT token with user details.
+        const token = await sign(
+            {userId: user.id, email: user.email},
+            JWT_SECRET
+        );
+
+        return c.json({message: "Login successful", token});
     }
+);
 
-    const token = jwt.sign(
-        {userId: user.id, email: user.email},
-        JWT_SECRET,
-        {expiresIn: "1h"}
-    );
-
-    return new Response(
-        JSON.stringify({message: "Login successful", token}),
-        {headers: {"Content-Type": "application/json"}}
-    );
-};
+export default {getLogin, postLogin};

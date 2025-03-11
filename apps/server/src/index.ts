@@ -1,4 +1,5 @@
-import {startServer} from "./server.ts";
+import {serve} from "bun";
+import app from "./server";
 
 console.log('ENV VARIABLES:');
 console.log('===========================');
@@ -11,4 +12,10 @@ console.log(`DB_NAME: ${process.env.DB_NAME}`);
 console.log(`DB_URL: ${process.env.DB_URL}`);
 console.log('===========================');
 
-startServer().then(message => console.log(message));
+const port = Number(process.env.PORT) || 3000;
+
+console.log(`Server running on port ${port}`);
+serve({
+    port,
+    fetch: app.fetch,
+});
