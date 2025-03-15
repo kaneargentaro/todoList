@@ -23,6 +23,8 @@ const getLogin = factory.createHandlers(
             throw new HTTPException(401, {message: "Not authenticated"});
         }
 
+        c.var.logger.info(`${email} is logged in`);
+
         return c.json({message: `${email} is logged in`});
     }
 );
@@ -46,6 +48,8 @@ const postLogin = factory.createHandlers(
             {userId: user.id, email: user.email},
             JWT_SECRET
         );
+
+        c.var.logger.info(`${email} successfully logged in`);
 
         return c.json({message: "Login successful", token});
     }

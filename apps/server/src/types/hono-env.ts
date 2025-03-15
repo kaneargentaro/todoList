@@ -1,3 +1,5 @@
+import type {HttpBindings} from '@hono/node-server';
+
 export interface AppEnv {
     Variables: {
         auth: {
@@ -5,5 +7,6 @@ export interface AppEnv {
             email: string;
         },
         validatedBody?: any;
-    };
+    },
+    Bindings: HttpBindings
 }
