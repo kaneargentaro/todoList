@@ -23,6 +23,8 @@ export const getUser = factory.createHandlers(
             return c.json({error: "User not found"}, 404);
         }
 
+        c.var.logger.info(`${email} fetched their data`);
+
         return c.json(user, 200);
     }
 );

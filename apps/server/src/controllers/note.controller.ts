@@ -24,7 +24,7 @@ const factory = createFactory<AppEnv>();
 export const getNotes = factory.createHandlers(
     async (c: Context<AppEnv>): Promise<Response> => {
         // Retrieve the authenticated user's ID from context.
-        const {userId} = c.get("auth") || {};
+        const {userId, email} = c.get("auth") || {};
         if (!userId) {
             return c.json({error: "Unauthorized"}, 401);
         }
@@ -34,6 +34,8 @@ export const getNotes = factory.createHandlers(
             where: {userId},
         });
 
+        c.var.logger.info(`${email} fetched their notes`);
+
         return c.json(notes, 200);
     }
 );
@@ -41,7 +43,7 @@ export const getNotes = factory.createHandlers(
 export const postNote = factory.createHandlers(
     async (c: Context<AppEnv>): Promise<Response> => {
         // Retrieve the authenticated user's ID.
-        const {userId} = c.get("auth") || {};
+        const {userId, email} = c.get("auth") || {};
         if (!userId) {
             return c.json({error: "Unauthorized"}, 401);
         }
@@ -56,7 +58,9 @@ export const postNote = factory.createHandlers(
                 message: validatedPayload.message || "",
             },
         });
-        
+
+        c.var.logger.info(note, `${email} created a new note`);
+
         return c.json(note, 201);
     }
 );

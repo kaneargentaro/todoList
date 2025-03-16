@@ -12,8 +12,7 @@
     "bun": "^1.2.4",
     "hono": "^4.7.4",
     "jsonwebtoken": "^9.0.2",
-    "pino": "^9.6.0",
-    "pino-http": "^10.4.0"
+    "pino": "^9.6.0"
   },
   "devDependencies": {
     "@types/bun": "^1.2.4",
