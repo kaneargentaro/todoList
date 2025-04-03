@@ -10,6 +10,9 @@ This repo currently has a copy in each application/package as necessary. Update 
 
 ## Run Dev 
 bun install
+cd packages/db/
+npm run prisma:migrate (to set up database and client)
+cd ../..
 npm run dev
 Access the UI at [localhost:](http://localhost:5173/)
 
