@@ -3,6 +3,7 @@ import UserInfo from './UserInfo';
 import NoteList from './NoteList';
 import NewNoteForm from './NewNoteForm';
 import ErrorPortal from './ErrorPortal';
+import config from '../config';
 
 interface DashboardProps {
     token: string;
@@ -31,14 +32,14 @@ const Dashboard: FC<DashboardProps> = ({token}) => {
     const loadData = async () => {
         setError('');
         try {
-            const resUser = await fetch('http://localhost:3000/user', {
+            const resUser = await fetch(`${config.apiUrl}/user`, {
                 headers: {Authorization: `Bearer ${token}`},
             });
             if (resUser.ok) {
                 const userData = await resUser.json();
                 setUser(userData);
             }
-            const resNotes = await fetch('http://localhost:3000/notes', {
+            const resNotes = await fetch(`${config.apiUrl}/notes`, {
                 headers: {Authorization: `Bearer ${token}`},
             });
             if (resNotes.ok) {

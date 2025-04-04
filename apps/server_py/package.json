@@ -1,0 +1,12 @@
+{
+  "name": "server-py",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "setup": "python3.12 -m venv venv && . venv/bin/activate && pip install -r requirements.txt",
+    "init-db": "PYTHONPATH=$PWD python -m src.scripts.init_db",
+    "prereq": "cd ../.. && npm run db:start",
+    "dev": "npm run prereq && . venv/bin/activate && PYTHONPATH=$PWD uvicorn src.main:app --reload",
+    "clean": "rm -rf venv __pycache__ .pytest_cache"
+  }
+} 

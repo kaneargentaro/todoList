@@ -1,4 +1,5 @@
 import {useRef, useState, FC, FormEvent} from 'react';
+import config from '../config';
 
 interface NewNoteFormProps {
     token: string;
@@ -17,7 +18,7 @@ const NewNoteForm: FC<NewNoteFormProps> = ({token, onNoteAdded}) => {
             return;
         }
         try {
-            const res = await fetch('http://localhost:3000/notes', {
+            const res = await fetch(`${config.apiUrl}/notes`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

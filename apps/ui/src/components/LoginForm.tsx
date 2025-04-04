@@ -1,4 +1,5 @@
 import {FC, FormEvent, useRef, useState} from 'react';
+import config from '../config';
 
 interface LoginFormProps {
     onLogin: (token: string) => void;
@@ -21,7 +22,7 @@ const LoginForm: FC<LoginFormProps> = ({onLogin}) => {
         }
 
         try {
-            const res = await fetch('http://localhost:3000/login', {
+            const res = await fetch(`${config.apiUrl}/login`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({email, password}),

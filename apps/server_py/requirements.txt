@@ -1,0 +1,11 @@
+fastapi>=0.115.12        # Modern, fast web framework (similar to Hono)
+uvicorn>=0.34.0         # ASGI server to run FastAPI
+python-jose>=3.4.0      # For JWT handling (authentication)
+passlib>=1.7.4          # Password hashing utilities
+python-multipart>=0.0.20 # Form data parsing
+pydantic>=2.11.1         # Data validation (comes with FastAPI but specified for version control)
+python-dotenv>=1.1.0     # Environment variable management
+psycopg2-binary>=2.9.10  # PostgreSQL adapter for Python
+sqlalchemy>=2.0.0        # SQL toolkit and ORM
+alembic>=1.15.2          # Database migrations
+email-validator>=2.1.0    # Email validation utilities
